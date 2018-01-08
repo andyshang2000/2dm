@@ -1,12 +1,17 @@
 package zz2d.modules.makeup
 {
+	import com.greensock.TweenLite;
+	import com.greensock.plugins.OnCompleteRenderPlugin;
+
+	import flash.geom.Point;
+
+	import fairygui.Controller;
 	import fairygui.GComponent;
 	import fairygui.GObject;
 	import fairygui.GRoot;
 	import fairygui.event.GTouchEvent;
 
 	import zz2d.ui.util.GViewSupport;
-	import fairygui.Controller;
 
 	public class Tool extends GComponent
 	{
@@ -32,7 +37,8 @@ package zz2d.modules.makeup
 			//				toolBar.scrollPane.isDragged = false;
 			if (event.type == GTouchEvent.END)
 			{
-				//					toolBar.touchable = true;
+				hide();
+				unuse(true);
 			}
 		}
 
@@ -48,16 +54,21 @@ package zz2d.modules.makeup
 
 		public function useTool():void
 		{
+			GRoot.inst.addChild(tool);
 			GRoot.inst.addEventListener(GTouchEvent.BEGIN, this.onTouch);
 			GRoot.inst.addEventListener(GTouchEvent.DRAG, this.onTouch);
 			GRoot.inst.addEventListener(GTouchEvent.END, this.onTouch);
+			enabled = false;
 		}
 
-		public function unuse():void
+		public function unuse(anim:Boolean = false):void
 		{
+			addChild(tool);
+			tool.setXY(0, 1120);
 			GRoot.inst.removeEventListener(GTouchEvent.BEGIN, this.onTouch);
 			GRoot.inst.removeEventListener(GTouchEvent.DRAG, this.onTouch);
 			GRoot.inst.removeEventListener(GTouchEvent.END, this.onTouch);
+			enabled = true;
 		}
 
 		public function setModel(model:GComponent):void

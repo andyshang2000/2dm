@@ -51,6 +51,7 @@ package zz2d.ui.view
 			{
 				drawFace();
 				nextScreen(DressupScreen, faceTexture);
+				showLoading();
 			}
 		}
 
@@ -66,11 +67,20 @@ package zz2d.ui.view
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Lens", Lens);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/ToolBar", ToolBar);
 
+		override public function dispose():void
+		{
+			super.dispose();
+			toolBar.selected.unuse();
+			toolBar.selected.hide();
+		}
+
 		override protected function onCreate():void
 		{
 			setGView("zz2d.dressup.gui", "Game");
 			GViewSupport.assign(this);
 			fit(getChild("model"));
+
+			setTimeout(hideLoading, 500);
 
 			toolBar.addEventListener("change", function():void
 			{
@@ -188,7 +198,8 @@ package zz2d.ui.view
 					var child:GObject = model.getChildAt(i)
 					if (child.group == group)
 					{
-						child.name = child.packageItem.name;
+						//to find the child easier
+						child.name = "$" + child.packageItem.name;
 						makeupParts.push(child);
 					}
 				}

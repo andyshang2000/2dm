@@ -1,11 +1,14 @@
 package zz2d.ui.view
 {
+	import flash.utils.setTimeout;
+
 	import fairygui.GComponent;
 	import fairygui.GGroup;
 	import fairygui.GImage;
 	import fairygui.GList;
 	import fairygui.GLoader;
 	import fairygui.GObject;
+	import fairygui.GTextField;
 	import fairygui.UIPackage;
 	import fairygui.event.ItemEvent;
 
@@ -21,6 +24,8 @@ package zz2d.ui.view
 		public var catBar:GComponent
 		[G]
 		public var model:GComponent
+		[G]
+		public var coinField:GTextField;
 
 		private var clothes:Array;
 
@@ -30,6 +35,7 @@ package zz2d.ui.view
 		[Handler(clickGTouch)]
 		public function replayButtonClick():void
 		{
+			showLoading();
 			nextScreen(MakeupScreen);
 		}
 
@@ -42,6 +48,7 @@ package zz2d.ui.view
 
 		override protected function onCreate():void
 		{
+			setTimeout(hideLoading, 500);
 			setGView("zz2d.dressup.gui", "Dressup");
 			GViewSupport.assign(this);
 			fit(model);

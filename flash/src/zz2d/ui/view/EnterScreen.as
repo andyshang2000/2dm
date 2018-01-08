@@ -32,6 +32,7 @@ package zz2d.ui.view
 		{
 //			nextScreen(DressupScreen);
 			nextScreen(MakeupScreen);
+			showLoading();
 		}
 
 		override protected function onCreate():void

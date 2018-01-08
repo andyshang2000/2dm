@@ -80,6 +80,16 @@ package zz2d.ui.view
 			screenMgr.setTransferParams(params);
 			screenMgr.changeScreen(clazz);
 		}
+			
+		public function showLoading():void
+		{
+			screenMgr.showLoading();
+		}
+		
+		public function hideLoading():void
+		{
+			screenMgr.hideLoading();
+		}
 
 		protected function onCreate():void
 		{
@@ -88,11 +98,7 @@ package zz2d.ui.view
 		protected function setGView(packName:String, compName:String):void
 		{
 			GRoot.inst.setContentScaleFactor(designWidth, designHeight, ScreenMatchMode.MatchWidthOrHeight);
-			gView = UIPackage.createObject(packName, compName).asCom;
-			gView.setSize(GRoot.inst.width, GRoot.inst.height);
-			gView.addRelation(GRoot.inst, RelationType.Size);
-			GRoot.inst.addChild(gView);
-
+			gView = screenMgr.createView(packName, compName).asCom;
 			GViewSupport.assign(this, gView);
 		}
 

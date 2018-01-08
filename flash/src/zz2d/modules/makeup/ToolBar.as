@@ -1,16 +1,12 @@
 package zz2d.modules.makeup
 {
 	import fairygui.GComponent;
-	import fairygui.GObject;
-	import fairygui.GRoot;
 	import fairygui.event.GTouchEvent;
-
+	
 	import zz2d.ui.util.GViewSupport;
 
 	public class ToolBar extends GComponent
 	{
-		private var selectedTool:GObject;
-
 		public var selected:Tool;
 
 		override protected function constructFromXML(xml:XML):void
@@ -34,17 +30,12 @@ package zz2d.modules.makeup
 			{
 				if (selected != null)
 				{
-					selected.enabled = true;
-					selected.unuse()
-					selected.addChild(selectedTool);
-					selectedTool.setXY(0, 1120);
+					selected.unuse(false)
 				}
 				selected = comp;
 				selected.useTool();
-				selectedTool = comp.getChild("tool");
-				GRoot.inst.addChild(selectedTool);
+				selected.showTool();
 				dispatchEventWith("change");
-				comp.enabled = false;
 			});
 		}
 

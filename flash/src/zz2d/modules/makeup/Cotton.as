@@ -12,11 +12,21 @@ package zz2d.modules.makeup
 	public class Cotton extends Tool
 	{
 		private var pimples:Array;
+		private var toolMask:GObject;
+		private var toolPos:Point = new Point;
 
 		override protected function constructFromXML(xml:XML):void
 		{
 			super.constructFromXML(xml);
 			GViewSupport.assign(this);
+			try
+			{
+				toolMask = GComponent(tool).getChild("toolMask");
+				toolMask.visible = false;
+			}
+			catch (err:Error)
+			{
+			}
 		}
 
 		override protected function onTouch(event:GTouchEvent):void
@@ -25,16 +35,16 @@ package zz2d.modules.makeup
 
 			if (!model)
 				return;
-
+			
+			toolMask.localToRoot(0, 0, toolPos);
+			model.rootToLocal(toolPos.x, toolPos.y, toolPos);
+			
 			var pimpleGroup:GGroup = model.getChild("Pimple").asGroup;
 			pimples = getChildrenInGroup(pimpleGroup);
 			for each (var p:GComponent in pimples)
 			{
-				var pnt:Point = new Point(tool.x - 34, tool.y - 83);
-				var pnt2:Point = new Point(p.x, p.y + 17);
-				p.localToRoot(0, 17, pnt2);
-
-				if (Point.distance(pnt, pnt2) < 10)
+				var pnt2:Point = new Point(p.x + p.width / 2, p.y + + p.height / 2);
+				if (Point.distance(toolPos, pnt2) < 10)
 				{
 					if (p.getChild("pimple").alpha < 0.5)
 						p.getChild("pimple").alpha = Math.max(0.0, p.getChild("pimple").alpha - 0.05);
