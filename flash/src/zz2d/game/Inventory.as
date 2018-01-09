@@ -1,39 +1,94 @@
 package zz2d.game
 {
-	import com.popchan.framework.utils.DataUtil;
-	
 	import flash.events.EventDispatcher;
-	
-	import nblib.util.TabTxtPaser;
-	
-	import zzsdk.utils.FileUtil;
+	import flash.net.registerClassAlias;
+
+	import mx.utils.StringUtil;
+
+	import nblib.util.Reader;
+
+	import zz2d.util.DataUtil;
 
 	public class Inventory extends EventDispatcher
 	{
 		protected static var json:*;
 
 		private var items:Object = {};
+		private var cats:Object = {};
 
-		public function Inventory():void
+		private function parseLine(line:String):void
 		{
-			if (!json)
-				json = FileUtil.open("gameconfig", "AMF");
+			var cursor:int = line.indexOf(":");
+			var cat:String = line.substr(0, cursor);
+			if (cat == "Money")
+			{
+				Game.money.m1 = parseInt(line.substr(cursor + 1));
+			}
+			else
+			{
+				cats[cat] = [];
+				while (cursor != -1 && cursor < line.length - 1)
+				{
+					cursor = line.indexOf("{", cursor);
+					var seg:String = line.substring(cursor + 1, cursor = line.indexOf("}", cursor));
+					var item:Item = parseSeg(seg);
+					item.cat = cat;
+					cats[cat].push(item);
+				}
+			}
+		}
+
+		private function parseSeg(seg:String):Item
+		{
+			var fields:Array = seg.split(",");
+			var item:Item = new Item;
+			item.cost = parseCost(fields[1]);
+			item.amount = fields[2].toUpperCase() == "Y" ? 1 : 0;
+			return item;
+		}
+
+		private function parseCost(value:String):Money
+		{
+			var money:Money = new Money;
+			money.m1 = parseInt(value);
+			return money;
+		}
+
+		public function getItem(cat:String, i:int):Item
+		{
+			if (!(cats[cat][i] is Item))
+			{
+				var item:Item = new Item;
+				item.amount = cats[cat][i].amount;
+				item.cat = cats[cat][i].cat;
+				item.cost = new Money;
+				item.cost.m1 = cats[cat][i].cost.m1;
+				cats[cat][i] = item;
+			}
+			return cats[cat][i];
 		}
 
 		public function load():void
 		{
 			DataUtil.load(DataUtil.id);
-			var data:String = DataUtil.readString("inventory", defaultInv()); // xxx,xxx,xxx|
-			var value:Object;
-			for each (var ii:ItemIndex in TabTxtPaser.parse(data, ItemIndex))
+			registerClassAlias("zz2d.game.Item", Item);
+			registerClassAlias("zz2d.game.Money", Money);
+			cats = DataUtil.readObj("inventory");
+			if (!cats)
 			{
-				if (json[ii.type + "_index"].indexOf(ii.id) != -1)
+				cats = {};
+				var reader:Reader = Reader.open("first.txt");
+				var num:int = 0;
+				while (reader.hasNextline())
 				{
-					if (items[ii.type] == null)
-					{
-						items[ii.type] = [];
-					}
-					items[ii.type].push(ii);
+					var line:String = StringUtil.trim(reader.readLine());
+					if (line.length < 1 || StringUtil.isWhitespace(line))
+						continue;
+					if (line.charAt(0) == "#")
+						continue;
+					num++
+					trace(num + ">" + line);
+					parseLine(line);
 				}
 			}
 		}
@@ -41,114 +96,24 @@ package zz2d.game
 		public function save():void
 		{
 			DataUtil.load(DataUtil.id);
-			DataUtil.writeString("inventory", serialize());
+			registerClassAlias("zz2d.game.Item", Item);
+			registerClassAlias("zz2d.game.Money", Money);
+			DataUtil.writeObj("inventory", cats);
 		}
 
-		private function serialize():String
+		public function hasItem(item:Item):Boolean
 		{
-			var res:String = "";
-			res += "type\tid\tamount\r\n";
-			for (var cat:String in items)
-			{
-				var catItems:Array = items[cat];
-				for (var obj:Object in catItems)
-				{
-					res += cat + "\t" + obj.id + "\t" + obj.amount + "\r\n";
-				}
-			}
-			return "";
+			return item.amount > 0;
 		}
 
-		private static function defaultInv():String
+		public function remove(item:Item):void
 		{
-			return "type\tid\tamount\r\n" + // 
-				"h\tg0033_h_dod\t1\r\n" + //
-				"j\tg0037_j_dod\t1\r\n" + //
-				"j\tg0052_j_dod\t1\r\n" + //
-				"p\tg0037_p_dod\t1\r\n" + //
-				"s\tg0024_s_dod\t1\r\n"
+			item.amount = 0;
 		}
 
-		public function hasItem(item:Object):Boolean
+		public function add(item:Item, amount:int = 1):void
 		{
-			var i:int = getIndex(item);
-			return i != -1;
-		}
-
-		public function getAmount(item:Object):int
-		{
-			var i:int = getIndex(item);
-			if (i != -1)
-				return items[item.type][i].amount;
-			return 0;
-		}
-
-		public function remove(item:Object):void
-		{
-			var indexName:String = item.type + "_index";
-			var i:int = getIndex(item);
-			if (i == -1)
-				items[item.type].push(new ItemIndex(item));
-			items[item.type].splice(i, 1);
-			items[indexName].splice(i, 1);
-		}
-
-		public function add(item:Object, amount:int = 1):void
-		{
-			var indexName:String = item.type + "_index";
-			var i:int = getIndex(item);
-			if (i == -1)
-			{
-				items[item.type].push(new ItemIndex(item));
-				items[indexName].push(Item.getHash(item))
-			}
-			else
-				items[item.type][i].amount += amount;
-		}
-
-		private function getIndex(item:Object):int
-		{
-			var indexName:String = item.type + "_index";
-			var i:int = items[indexName].indexOf(Item.getHash(item));
-			return i;
-		}
-
-		public function filterBy(cat:String):Array
-		{
-			var res:Array = [];
-			if (items[cat] == null)
-				return res;
-			for (var i:int = 0; i < items[cat].length; i++)
-			{
-				var ii:ItemIndex = items[cat][i];
-				var item:Object = getItem(ii.type, ii.id);
-				res.push(item);
-			}
-			return res;
-		}
-
-		public function getItem(cat:String, id:String):Object
-		{
-			var jIndex:int = json[cat + "_index"].indexOf(id);
-			return json.game[cat][jIndex];
-		}
-	}
-}
-import zz2d.game.Item;
-
-class ItemIndex
-{
-	public var type:String; //1,2,3,4,9 cat
-	public var id:*;
-	public var amount:int;
-
-	public function ItemIndex(item:Object = null)
-	{
-		if (item != null)
-		{
-			type = item.getCat();
-			id = Item.getHash(item);
-			amount = 0;
+			item.amount += amount;
 		}
 	}
 }

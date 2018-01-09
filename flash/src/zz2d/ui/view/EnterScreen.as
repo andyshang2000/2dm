@@ -6,10 +6,13 @@ package zz2d.ui.view
 	import fairygui.PackageItem;
 	import fairygui.UIConfig;
 	import fairygui.UIPackage;
+	import fairygui.Window;
 
 	import payment.ane.PaymentANE;
 
 	import starling.extensions.PDParticleSystem;
+
+	import zz2d.game.Game;
 
 	import zzsdk.utils.FileUtil;
 
@@ -53,6 +56,8 @@ package zz2d.ui.view
 			{
 				GRoot.inst.playBGM(sound, 1);
 			}
+
+			Game.load();
 		}
 	}
 }

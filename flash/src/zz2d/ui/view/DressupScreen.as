@@ -1,5 +1,7 @@
 package zz2d.ui.view
 {
+	import com.greensock.TweenLite;
+
 	import flash.utils.setTimeout;
 
 	import fairygui.GComponent;
@@ -7,13 +9,18 @@ package zz2d.ui.view
 	import fairygui.GImage;
 	import fairygui.GList;
 	import fairygui.GLoader;
+	import fairygui.GMovieClip;
 	import fairygui.GObject;
 	import fairygui.GTextField;
+	import fairygui.UIObjectFactory;
 	import fairygui.UIPackage;
 	import fairygui.event.ItemEvent;
 
 	import starling.textures.Texture;
 
+	import zz2d.game.Buy;
+	import zz2d.game.Game;
+	import zz2d.game.Item;
 	import zz2d.ui.util.GViewSupport;
 
 	public class DressupScreen extends GScreen implements IScreen
@@ -46,6 +53,8 @@ package zz2d.ui.view
 			model.getController("gameState").selectedPage = "show";
 		}
 
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/VideoFace", VideoFace);
+
 		override protected function onCreate():void
 		{
 			setTimeout(hideLoading, 500);
@@ -59,17 +68,36 @@ package zz2d.ui.view
 			face.texture = faceTexture;
 			list.itemRenderer = function(i:int, r:GComponent):void
 			{
+				var selected:String = catBar.getController("buttonGroup").selectedPage;
 				var loader:GLoader = r.getChild("loader").asLoader;
+				var unlockMovie:GMovieClip = r.getChild("unlockMovie").asMovieClip;
 				var name:String = clothes[i];
 				var url:String = UIPackage.getItemURL("zz2d.dressup.gui", name);
+				var item:Item = Game.inventory.getItem(selected, i);
 				loader.url = url;
+				if (item.amount < 1)
+				{
+					unlockMovie.visible = true;
+				}
+				else
+				{
+					unlockMovie.visible = false;
+				}
 			};
 			list.addEventListener("itemClick", function(event:ItemEvent):void
 			{
 				var selected:String = catBar.getController("buttonGroup").selectedPage;
 				var i:int = list.childIndexToItemIndex(list.getChildIndex(event.itemObject));
-				model.getController(selected).selectedIndex = i + 1;
-				Particle(model.getChild("particle")).start();
+				var item:Item = Game.inventory.getItem(selected, i);
+				if (item.amount < 1)
+				{
+					promptBuy(item, event.itemObject.asCom);
+				}
+				else
+				{
+					model.getController(selected).selectedIndex = i + 1;
+					Particle(model.getChild("particle")).start();
+				}
 			});
 
 			catBar.getController("buttonGroup").addEventListener("stateChanged", function():void
@@ -77,6 +105,29 @@ package zz2d.ui.view
 				updateSelectedCat();
 			});
 			updateSelectedCat();
+		}
+
+		private function promptBuy(item:Item, rendererComp:GComponent):void
+		{
+			if (Game.money.afford(item.cost))
+			{
+				trace("buy buy buy");
+				if (new Buy(item).execute())
+				{
+					var unlockMovie:GMovieClip = rendererComp.getChild("unlockMovie").asMovieClip;
+					unlockMovie.setPlaySettings(0, -1, 1, -1, function():void
+					{
+						TweenLite.to(unlockMovie, 0.5, {alpha: 0, onComplete: function():void
+						{
+							unlockMovie.visible = false;
+						}});
+					});
+				}
+			}
+			else
+			{
+				trace("cannot afford")
+			}
 		}
 
 		private function updateSelectedCat():void

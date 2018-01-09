@@ -27,10 +27,10 @@ package zz2d.ui.view
 			h = height;
 		}
 
-		public static function createWithMask(bitmapData:BitmapData, source:* = null):CameraVideo
+		public static function createWithMask(texture:Texture, source:* = null):CameraVideo
 		{
-			var res:CameraVideo = new CameraVideo(bitmapData.width, bitmapData.height);
-			res.setMask(bitmapData);
+			var res:CameraVideo = new CameraVideo(texture.width, texture.height);
+			res.setMask(texture);
 			if (source is Camera)
 			{
 				res.attachCamera(source);
@@ -48,13 +48,16 @@ package zz2d.ui.view
 		{
 		}
 
-		public function setMask(bitmapData:BitmapData):void
+		public function setMask(texture:Texture):void
 		{
-			super.mask = new Image(Texture.fromBitmapData(bitmapData, false, false));
+			super.pixelMask = new Image(texture);
 		}
 
 		public function attachCamera(camera:Camera, direct:int = 1):void
 		{
+			if (camera == null)
+				return;
+
 			if (direct == 1)
 			{
 				//IOS style
@@ -71,12 +74,14 @@ package zz2d.ui.view
 				matrix.translate(w, 0);
 			}
 			this.camera = camera;
-			camera.setMode(h * 2, w * 2, 24);
-			if (!image)
+			camera.setMode(h, w, 24);
+			videoTexture = Texture.fromCamera(camera, 1, function():void
 			{
-				addChildAt(image = new Image(videoTexture), 0);
-			}
-			videoTexture = Texture.fromCamera(camera);
+				if (!image)
+				{
+					addChild(image = new Image(videoTexture));
+				}
+			});
 			resume();
 		}
 	}

@@ -6,6 +6,8 @@ package nblib.util
 	import flash.utils.ByteArray;
 	import flash.utils.IDataInput;
 
+	import zzsdk.utils.FileUtil;
+
 	public class Reader
 	{
 		private var input:IDataInput;
@@ -19,8 +21,10 @@ package nblib.util
 
 		private var encoding:String;
 
-		public static function open(file:File):Reader
+		public static function open(file:*):Reader
 		{
+			if (file is String)
+				return open(FileUtil.dir.resolvePath(file));
 			if (file.exists)
 			{
 				var fs:FileStream = new FileStream;

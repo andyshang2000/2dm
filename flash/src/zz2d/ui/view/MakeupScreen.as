@@ -1,5 +1,7 @@
 package zz2d.ui.view
 {
+	import com.greensock.TweenLite;
+
 	import flash.utils.setTimeout;
 
 	import fairygui.Controller;
@@ -8,13 +10,18 @@ package zz2d.ui.view
 	import fairygui.GImage;
 	import fairygui.GList;
 	import fairygui.GLoader;
+	import fairygui.GMovieClip;
 	import fairygui.GObject;
 	import fairygui.UIObjectFactory;
 	import fairygui.UIPackage;
+	import fairygui.Window;
 	import fairygui.event.ItemEvent;
 
 	import starling.textures.RenderTexture;
 
+	import zz2d.game.Buy;
+	import zz2d.game.Game;
+	import zz2d.game.Item;
 	import zz2d.modules.makeup.Cotton;
 	import zz2d.modules.makeup.Lens;
 	import zz2d.modules.makeup.Needle;
@@ -66,12 +73,26 @@ package zz2d.ui.view
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Lip", PaintingTool);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Lens", Lens);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/ToolBar", ToolBar);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Sign", Sign);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Balance", BalanceView);
 
 		override public function dispose():void
 		{
 			super.dispose();
-			toolBar.selected.unuse();
-			toolBar.selected.hide();
+			if (toolBar.selected)
+			{
+				toolBar.selected.unuse();
+				toolBar.selected.hide();
+				toolBar.selected = null;
+			}
+		}
+
+		private function popupSign():void
+		{
+			var win:Window = new Window();
+			win.contentPane = UIPackage.createObject("zz2d.dressup.gui", "Sign").asCom;
+			fit(win.contentPane);
+			win.show();
 		}
 
 		override protected function onCreate():void
@@ -81,6 +102,7 @@ package zz2d.ui.view
 			fit(getChild("model"));
 
 			setTimeout(hideLoading, 500);
+			setTimeout(popupSign, 1000);
 
 			toolBar.addEventListener("change", function():void
 			{
@@ -108,9 +130,19 @@ package zz2d.ui.view
 			list.itemRenderer = function(i:int, r:GComponent):void
 			{
 				var loader:GLoader = r.getChild("loader").asLoader;
+				var unlockMovie:GMovieClip = r.getChild("unlockMovie").asMovieClip;
 				var name:String = toolBar.selected.packageItem.name;
 				var url:String = UIPackage.getItemURL("zz2d.dressup.gui", name + int2str(i + 1));
+				var item:Item = Game.inventory.getItem(name, i);
 				loader.url = url;
+				if (item.amount < 1)
+				{
+					unlockMovie.visible = true;
+				}
+				else
+				{
+					unlockMovie.visible = false;
+				}
 			};
 			list.addEventListener("itemClick", function(event:ItemEvent):void
 			{
@@ -120,12 +152,44 @@ package zz2d.ui.view
 					var name:String = toolBar.selected.packageItem.name;
 					var part:GObject = makeupParts[i];
 					var controller:Controller = model.getController(name);
-					toolBar.selected.updateOption(controller, i);
-					PaintingTool(toolBar.selected).setRenderSource(part);
-					PaintingTool(toolBar.selected).setRenderSourceRect(part.x, part.y, part.width, part.height);
+					var item:Item = Game.inventory.getItem(name, i);
+					if (item.amount < 1)
+					{
+						promptBuy(item, event.itemObject.asCom);
+					}
+					else
+					{
+						toolBar.selected.updateOption(controller, i);
+						PaintingTool(toolBar.selected).setRenderSource(part);
+						PaintingTool(toolBar.selected).setRenderSourceRect(part.x, part.y, part.width, part.height);
+					}
 				}
 			});
 			changeTool();
+		}
+
+		private function promptBuy(item:Item, rendererComp:GComponent):void
+		{
+			if (Game.money.afford(item.cost))
+			{
+				trace("buy buy buy");
+				if (new Buy(item).execute())
+				{
+					var unlockMovie:GMovieClip = rendererComp.getChild("unlockMovie").asMovieClip;
+					unlockMovie.setPlaySettings(0, -1, 1, -1, function():void
+					{
+						TweenLite.to(unlockMovie, 0.5, {alpha: 0, onComplete: function():void
+						{
+							unlockMovie.visible = false;
+						}});
+					});
+					unlockMovie.playing = true;
+				}
+			}
+			else
+			{
+				trace("cannot afford");
+			}
 		}
 
 		public function drawFace():void
