@@ -25,7 +25,7 @@ package starling.textures
     import flash.system.Capabilities;
     import flash.utils.ByteArray;
     import flash.utils.getQualifiedClassName;
-
+    
     import starling.core.Starling;
     import starling.errors.AbstractClassError;
     import starling.errors.MissingContextError;

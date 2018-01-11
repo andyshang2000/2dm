@@ -21,6 +21,7 @@ package fairygui
 	import starling.events.Touch;
 	import starling.events.TouchEvent;
 	import starling.events.TouchPhase;
+	import flash.media.SoundChannel;
 	
 	[Event(name = "FocusChanged", type = "starling.events.Event")]
 	public class GRoot extends GComponent
@@ -504,13 +505,14 @@ package fairygui
 			var vs:Number = _bgmVolumeScale * volumeScale;
 			bgmTs = new SoundTransform(vs);
 			bgmVs = volumeScale
-			sound.play(0, 99999, bgmTs);
+			bgmChannel = sound.play(0, 99999, bgmTs);
 		}
 		
 		public function set bgmVolumeScale(value:Number):void
 		{
 			_bgmVolumeScale = value;
 			bgmTs.volume = _bgmVolumeScale * bgmVs;
+			bgmChannel.soundTransform = bgmTs;
 		}
 		
 		
@@ -600,6 +602,7 @@ package fairygui
 		private var bgm:Sound;
 		private var bgmTs:SoundTransform;
 		private var bgmVs:Number;
+		private var bgmChannel:SoundChannel;
 		private function __stageMouseDownCapture(evt:MouseEvent):void 
 		{
 			ctrlKeyDown = evt.ctrlKey;

@@ -14,6 +14,8 @@ package zz2d.ui.view
 	import fairygui.Transition;
 	import fairygui.UIPackage;
 
+	import payment.ane.PaymentANE;
+
 	import starling.display.Sprite;
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
@@ -80,12 +82,21 @@ package zz2d.ui.view
 			screenMgr.setTransferParams(params);
 			screenMgr.changeScreen(clazz);
 		}
-			
+
 		public function showLoading():void
 		{
 			screenMgr.showLoading();
+			try
+			{
+				GRoot.inst.volumeScale = 0;
+				GRoot.inst.bgmVolumeScale = 0;
+				PaymentANE.call("showInterstitialAd");
+			}
+			catch (err:Error)
+			{
+			}
 		}
-		
+
 		public function hideLoading():void
 		{
 			screenMgr.hideLoading();

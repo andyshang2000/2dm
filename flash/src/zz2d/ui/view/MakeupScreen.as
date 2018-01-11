@@ -1,7 +1,5 @@
 package zz2d.ui.view
 {
-	import com.greensock.TweenLite;
-
 	import flash.utils.setTimeout;
 
 	import fairygui.Controller;
@@ -12,14 +10,14 @@ package zz2d.ui.view
 	import fairygui.GLoader;
 	import fairygui.GMovieClip;
 	import fairygui.GObject;
+	import fairygui.GRoot;
 	import fairygui.UIObjectFactory;
 	import fairygui.UIPackage;
-	import fairygui.Window;
+	import fairygui.event.GTouchEvent;
 	import fairygui.event.ItemEvent;
 
 	import starling.textures.RenderTexture;
 
-	import zz2d.game.Buy;
 	import zz2d.game.Game;
 	import zz2d.game.Item;
 	import zz2d.modules.makeup.Cotton;
@@ -29,6 +27,11 @@ package zz2d.ui.view
 	import zz2d.modules.makeup.PaintingTool;
 	import zz2d.modules.makeup.ToolBar;
 	import zz2d.ui.util.GViewSupport;
+	import zz2d.ui.window.ConfirmPrompt;
+	import zz2d.ui.window.CryPrompt;
+	import zz2d.ui.window.FreeCoin;
+	import zz2d.ui.window.NotEnoughCoinPrompt;
+	import zz2d.ui.window.Sign;
 
 	public class MakeupScreen extends GScreen implements IScreen
 	{
@@ -62,6 +65,33 @@ package zz2d.ui.view
 			}
 		}
 
+		[Handler(clickGTouch)]
+		public function signButtonClick():void
+		{
+			Sign.show();
+		}
+
+		[G]
+		public var soundSwitch:SoundSettings;
+
+		[Handler(clickGTouch)]
+		public function settingsButtonClick():void
+		{
+			if (soundSwitch.getController("c1").selectedIndex != 1)
+			{
+				soundSwitch.getController("c1").selectedIndex = 1;
+//				GRoot.inst.addEventListener(GTouchEvent.BEGIN, function():void
+//				{
+//					GRoot.inst.removeEventListener(GTouchEvent.BEGIN, arguments.callee);
+//					soundSwitch.getController("c1").selectedIndex = 2;
+//				});
+			}
+			else
+			{
+				soundSwitch.getController("c1").selectedIndex = 2;
+			}
+		}
+
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Needle", Needle);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Cotton", Cotton);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Rim", PaintingTool);
@@ -75,6 +105,11 @@ package zz2d.ui.view
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/ToolBar", ToolBar);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Sign", Sign);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/Balance", BalanceView);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/ConfirmPrompt", ConfirmPrompt);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/NotEnoughCoinPrompt", NotEnoughCoinPrompt);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/FreeCoin", FreeCoin);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/CryPrompt", CryPrompt);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/SoundSettings", SoundSettings);
 
 		override public function dispose():void
 		{
@@ -89,10 +124,9 @@ package zz2d.ui.view
 
 		private function popupSign():void
 		{
-			var win:Window = new Window();
-			win.contentPane = UIPackage.createObject("zz2d.dressup.gui", "Sign").asCom;
-			fit(win.contentPane);
-			win.show();
+			if (Game.signRecord.signed)
+				return;
+			Sign.show();
 		}
 
 		override protected function onCreate():void
@@ -155,7 +189,7 @@ package zz2d.ui.view
 					var item:Item = Game.inventory.getItem(name, i);
 					if (item.amount < 1)
 					{
-						promptBuy(item, event.itemObject.asCom);
+						BuySupport.promptBuy(item, event.itemObject.asCom);
 					}
 					else
 					{
@@ -166,30 +200,6 @@ package zz2d.ui.view
 				}
 			});
 			changeTool();
-		}
-
-		private function promptBuy(item:Item, rendererComp:GComponent):void
-		{
-			if (Game.money.afford(item.cost))
-			{
-				trace("buy buy buy");
-				if (new Buy(item).execute())
-				{
-					var unlockMovie:GMovieClip = rendererComp.getChild("unlockMovie").asMovieClip;
-					unlockMovie.setPlaySettings(0, -1, 1, -1, function():void
-					{
-						TweenLite.to(unlockMovie, 0.5, {alpha: 0, onComplete: function():void
-						{
-							unlockMovie.visible = false;
-						}});
-					});
-					unlockMovie.playing = true;
-				}
-			}
-			else
-			{
-				trace("cannot afford");
-			}
 		}
 
 		public function drawFace():void

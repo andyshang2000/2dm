@@ -1,12 +1,12 @@
 package zz2d.ui.view
 {
+	import flash.events.StatusEvent;
 	import flash.media.Sound;
 
 	import fairygui.GRoot;
 	import fairygui.PackageItem;
 	import fairygui.UIConfig;
 	import fairygui.UIPackage;
-	import fairygui.Window;
 
 	import payment.ane.PaymentANE;
 
@@ -33,7 +33,6 @@ package zz2d.ui.view
 		[Handler(clickGTouch)]
 		public function startButtonClick():void
 		{
-//			nextScreen(DressupScreen);
 			nextScreen(MakeupScreen);
 			showLoading();
 		}
@@ -45,6 +44,8 @@ package zz2d.ui.view
 			try
 			{
 				PaymentANE.call("ready");
+				
+				Game.listen(PaymentANE.extContext)
 			}
 			catch (err:Error)
 			{

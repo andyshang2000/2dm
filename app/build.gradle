@@ -18,6 +18,7 @@ android {
         applicationId "com.zzstudio.dressup3d"
         minSdkVersion 15
         targetSdkVersion 25
+        multiDexEnabled true
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -38,6 +39,7 @@ dependencies {
     compile 'com.android.support:appcompat-v7:25.3.1'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
     compile 'com.google.android.gms:play-services-analytics:11.6.0'
+    compile 'com.google.android.gms:play-services-ads:11.6.0'
     testCompile 'junit:junit:4.12'
     compile files('libs/AppEntry_release.jar')
     compile files('libs/FlashRuntimeExtensions.jar')

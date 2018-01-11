@@ -157,7 +157,7 @@ package starling.textures
         }
 
         /** @private */
-        internal function attachVideo(type:String, attachment:Object, onComplete:Function=null):void
+        public function attachVideo(type:String, attachment:Object, onComplete:Function=null):void
         {
             throw new NotSupportedError();
         }

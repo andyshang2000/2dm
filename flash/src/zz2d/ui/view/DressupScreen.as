@@ -2,8 +2,11 @@ package zz2d.ui.view
 {
 	import com.greensock.TweenLite;
 
+	import flash.geom.Rectangle;
+	import flash.media.Camera;
 	import flash.utils.setTimeout;
 
+	import fairygui.GButton;
 	import fairygui.GComponent;
 	import fairygui.GGroup;
 	import fairygui.GImage;
@@ -18,10 +21,10 @@ package zz2d.ui.view
 
 	import starling.textures.Texture;
 
-	import zz2d.game.Buy;
 	import zz2d.game.Game;
 	import zz2d.game.Item;
 	import zz2d.ui.util.GViewSupport;
+	import zz2d.ui.window.Sign;
 
 	public class DressupScreen extends GScreen implements IScreen
 	{
@@ -33,11 +36,14 @@ package zz2d.ui.view
 		public var model:GComponent
 		[G]
 		public var coinField:GTextField;
+		[G]
+		public var settingsButton:GButton;
 
 		private var clothes:Array;
 
 		private var faceTexture:Texture;
 		private var face:GImage;
+		private var cameraIndex:int = 0;
 
 		[Handler(clickGTouch)]
 		public function replayButtonClick():void
@@ -46,11 +52,71 @@ package zz2d.ui.view
 			nextScreen(MakeupScreen);
 		}
 
+		[G]
+		public var cameraButton:GButton;
+
 		[Handler(clickGTouch)]
-		public function toShowButtonClick():void
+		public function cameraButtonClick():void
+		{
+			if (cameraButton.getController("c1").selectedPage == "camera" || //
+				cameraButton.getController("c1").selectedPage == "switchCamera")
+			{
+				var nameList:Array = Camera.names;
+				var camera:Camera = Camera.getCamera(nameList[cameraIndex % nameList.length]);
+				cameraIndex++;
+				if (cameraIndex == nameList.length)
+				{
+					cameraButton.getController("c1").selectedPage = "toCartoon"; //"cameraSwitch";
+				}
+				else
+				{
+					cameraButton.getController("c1").selectedPage = "switchCamera";
+				}
+				VideoFace(model.getChild("videoFace")).attachCamera(camera);
+				VideoFace(model.getChild("videoFace")).visible = true;
+			}
+			else if (cameraButton.getController("c1").selectedPage == "toCartoon")
+			{
+				cameraButton.getController("c1").selectedPage = "camera"
+				cameraIndex = 0;
+				VideoFace(model.getChild("videoFace")).attachCamera(null);
+				VideoFace(model.getChild("videoFace")).visible = false;
+			}
+		}
+
+		[Handler(clickGTouch)]
+		public function nextPageClick():void
 		{
 			getController("gameState").selectedPage = "show";
 			model.getController("gameState").selectedPage = "show";
+			VideoFace(model.getChild("videoFace")).snap();
+		}
+
+		[Handler(clickGTouch)]
+		public function signButtonClick():void
+		{
+			Sign.show();
+		}
+
+		[G]
+		public var soundSwitch:SoundSettings;
+
+		[Handler(clickGTouch)]
+		public function settingsButtonClick():void
+		{
+			if (soundSwitch.getController("c1").selectedIndex != 1)
+			{
+				soundSwitch.getController("c1").selectedIndex = 1;
+					//				GRoot.inst.addEventListener(GTouchEvent.BEGIN, function():void
+					//				{
+					//					GRoot.inst.removeEventListener(GTouchEvent.BEGIN, arguments.callee);
+					//					soundSwitch.getController("c1").selectedIndex = 2;
+					//				});
+			}
+			else
+			{
+				soundSwitch.getController("c1").selectedIndex = 2;
+			}
 		}
 
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/VideoFace", VideoFace);
@@ -61,11 +127,23 @@ package zz2d.ui.view
 			setGView("zz2d.dressup.gui", "Dressup");
 			GViewSupport.assign(this);
 			fit(model);
-			faceTexture = getTransferParams()[0];
-			model.addChild(face = new GImage);
-			face.setScale(98 / 277, 98 / 277);
-			face.setXY(138, 10);
-			face.texture = faceTexture;
+			VideoFace(model.getChild("videoFace")).visible = false;
+			if (Camera.names.length < 1)
+			{
+				cameraButton.visible = false;
+			}
+			try
+			{
+				faceTexture = getTransferParams()[0];
+
+				model.addChildAt(face = new GImage, model.getChildIndex(model.getChild("videoFace")));
+				face.setScale(98 / 277, 98 / 277);
+				face.setXY(138, 10);
+				face.texture = faceTexture;
+			}
+			catch (err:Error)
+			{
+			}
 			list.itemRenderer = function(i:int, r:GComponent):void
 			{
 				var selected:String = catBar.getController("buttonGroup").selectedPage;
@@ -91,11 +169,18 @@ package zz2d.ui.view
 				var item:Item = Game.inventory.getItem(selected, i);
 				if (item.amount < 1)
 				{
-					promptBuy(item, event.itemObject.asCom);
+					BuySupport.promptBuy(item, event.itemObject.asCom);
 				}
 				else
 				{
-					model.getController(selected).selectedIndex = i + 1;
+					if (model.getController(selected).getPageName(0) == "default")
+					{
+						model.getController(selected).selectedIndex = i;
+					}
+					else
+					{
+						model.getController(selected).selectedIndex = i + 1;
+					}
 					Particle(model.getChild("particle")).start();
 				}
 			});
@@ -105,29 +190,6 @@ package zz2d.ui.view
 				updateSelectedCat();
 			});
 			updateSelectedCat();
-		}
-
-		private function promptBuy(item:Item, rendererComp:GComponent):void
-		{
-			if (Game.money.afford(item.cost))
-			{
-				trace("buy buy buy");
-				if (new Buy(item).execute())
-				{
-					var unlockMovie:GMovieClip = rendererComp.getChild("unlockMovie").asMovieClip;
-					unlockMovie.setPlaySettings(0, -1, 1, -1, function():void
-					{
-						TweenLite.to(unlockMovie, 0.5, {alpha: 0, onComplete: function():void
-						{
-							unlockMovie.visible = false;
-						}});
-					});
-				}
-			}
-			else
-			{
-				trace("cannot afford")
-			}
 		}
 
 		private function updateSelectedCat():void
@@ -145,6 +207,17 @@ package zz2d.ui.view
 						clothes.push(child.packageItem.name);
 					}
 				}
+			}
+			if (selected == "hair")
+			{
+				var rect:Rectangle = getFitRect(model, 2.2);
+//				TweenLite.to(model, 0.5, {x: rect.x, y: rect.y, scaleX: 2.2, scaleY: 2.2});
+			}
+			else
+			{
+				var rect:Rectangle = getFitRect(model, 1);
+				trace(rect);
+//				TweenLite.to(model, 0.5, {x: rect.x, y: rect.y, scaleX: 1, scaleY: 1});
 			}
 			list.numItems = clothes.length;
 		}

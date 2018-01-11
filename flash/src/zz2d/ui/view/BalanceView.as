@@ -1,10 +1,13 @@
 package zz2d.ui.view
 {
+	import com.greensock.TweenLite;
+	
 	import fairygui.GComponent;
 	import fairygui.GTextField;
-
+	
 	import zz2d.game.Game;
 	import zz2d.ui.util.GViewSupport;
+	import zz2d.ui.window.FreeCoin;
 
 	public class BalanceView extends GComponent
 	{
@@ -14,7 +17,7 @@ package zz2d.ui.view
 		[Handler(clickGTouch)]
 		public function addCoinButtonClick():void
 		{
-			trace("watch video to get free coin");
+			FreeCoin.show();
 		}
 
 		override protected function constructFromXML(xml:XML):void
@@ -31,7 +34,15 @@ package zz2d.ui.view
 
 		private function syncMoney():void
 		{
-			coinField.text = Game.money.m1 + "";
+			var base:Number = Number(coinField.text)
+			var gap:Number = Game.money.m1 - base;
+			var tween:TweenLite = TweenLite.to(coinField, 0.5, {onUpdate: function():void
+			{
+				coinField.text = (int(gap * tween.ratio) + base) + "";
+			}, onComplete: function():void
+			{
+				coinField.text = Game.money.m1 + "";
+			}});
 		}
 	}
 }

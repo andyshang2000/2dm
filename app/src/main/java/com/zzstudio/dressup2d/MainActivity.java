@@ -1,12 +1,13 @@
 package com.zzstudio.dressup2d;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,7 +15,9 @@ import android.widget.ImageView;
 
 import com.adobe.air.AndroidActivityWrapper;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.List;
+
+public class MainActivity extends BaseActivity {
 
     AndroidActivityWrapper wrapper;
     private ImageView view;
@@ -46,6 +49,24 @@ public class MainActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction("cn.abel.action.broadcast");
         this.registerReceiver(new MyBroadcastReciver(), intentFilter);
+
+        requestPermission();
+    }
+
+    private void requestPermission() {
+        requestRuntimePermission(
+                new String[]{Manifest.permission.CAMERA,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                new PermissionListener() {
+
+                    @Override
+                    public void onGranted() {
+                    }
+
+                    @Override
+                    public void onDenied(List<String> deniedPermission) {
+                    }
+                });
     }
 
     private class MyBroadcastReciver extends BroadcastReceiver {

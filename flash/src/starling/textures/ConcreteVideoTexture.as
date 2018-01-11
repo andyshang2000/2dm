@@ -22,7 +22,7 @@ package starling.textures
      *
      *  A concrete texture that wraps a <code>VideoTexture</code> base.
      *  For internal use only. */
-    internal class ConcreteVideoTexture extends ConcreteTexture
+    public class ConcreteVideoTexture extends ConcreteTexture
     {
         private var _textureReadyCallback:Function;
         private var _disposed:Boolean;
@@ -61,7 +61,7 @@ package starling.textures
         }
 
         /** @private */
-        override internal function attachVideo(type:String, attachment:Object,
+        override public function attachVideo(type:String, attachment:Object,
                                                onComplete:Function=null):void
         {
             _textureReadyCallback = onComplete;

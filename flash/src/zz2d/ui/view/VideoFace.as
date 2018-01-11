@@ -8,6 +8,7 @@ package zz2d.ui.view
 	public class VideoFace extends GComponent
 	{
 		private var video:CameraVideo;
+
 		public function VideoFace()
 		{
 			super();
@@ -18,19 +19,28 @@ package zz2d.ui.view
 			super.constructFromXML(xml);
 			setXY(0, 0);
 			//			.visible = false;
-			
+
 			if (getChild("pixelMask").packageItem.loaded)
 				__imageLoaded(packageItem);
 			else
 				getChild("pixelMask").packageItem.owner.addItemCallback(getChild("pixelMask").packageItem, __imageLoaded);
 		}
-		
+
 		private function __imageLoaded(packageItem:PackageItem):void
 		{
 			video = CameraVideo.createWithMask(getChild("pixelMask").asImage.texture);
 			displayListContainer.addChild(video);
-			
-			video.attachCamera(Camera.getCamera(), 2);
+			video.scale = width / getChild("pixelMask").asImage.texture.width;
+		}
+
+		public function attachCamera(camera:Camera):void
+		{
+			video.attachCamera(camera, 2);
+		}
+		
+		public function snap():void
+		{
+			video.snap();
 		}
 	}
 }

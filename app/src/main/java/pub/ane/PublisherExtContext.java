@@ -3,10 +3,20 @@ package pub.ane;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Environment;
+import android.os.Handler;
 import android.provider.MediaStore;
+import android.provider.Settings;
+import android.widget.Toast;
 
 import com.adobe.fre.FREByteArray;
 import com.adobe.fre.FREObject;
+import com.google.android.gms.ads.AdListener;
+import com.google.android.gms.ads.AdRequest;
+import com.google.android.gms.ads.InterstitialAd;
+import com.google.android.gms.ads.MobileAds;
+import com.google.android.gms.ads.reward.RewardItem;
+import com.google.android.gms.ads.reward.RewardedVideoAd;
+import com.google.android.gms.ads.reward.RewardedVideoAdListener;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -15,13 +25,30 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.security.InvalidParameterException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.zip.ZipInputStream;
 
-public class PublisherExtContext extends ExtContextBase {
+public class PublisherExtContext extends ExtContextBase implements RewardedVideoAdListener {
 
     private int saveCount = 0;
+    private RewardedVideoAd mRewardedVideoAd;
+    private InterstitialAd mInterstitialAd;
+
+//    private static final String AD_UNIT_ID = "ca-app-pub-2206762674984537/1218019039";
+//    private static final String APP_ID = "ca-app-pub-2206762674984537~3927942854";
+//    private static final String AD_UNIT_INTERS = "ca-app-pub-2206762674984537/1900631033";
+
+    private static final String APP_ID = "ca-app-pub-3940256099942544~3347511713";
+    private static final String AD_UNIT_ID = "cca-app-pub-3940256099942544/5224354917";
+    private static final String AD_UNIT_INTERS = "ca-app-pub-3940256099942544/1033173712";
+
+
+    private Handler handler;
+    private int triedTimes = 0;
+
 
     public FREObject readFromZip(String path) {
         FREByteArray ba = null;
@@ -103,16 +130,183 @@ public class PublisherExtContext extends ExtContextBase {
     }
 
     @ANE
+    public void askForMessage() {
+        sendMessage();
+    }
+
+    public void sendMessage() {
+        this.dispatchStatusEventAsync("start", "lalala");
+    }
+
+    @ANE
     public int ready() {
         Intent intent = new Intent();
         intent.setAction("cn.abel.action.broadcast");
         intent.putExtra("author", "Abel");
         getActivity().sendBroadcast(intent);
+        initAD();
         return 1;
     }
 
     @ANE
     public int getSound() {
         return 1;
+    }
+
+    @ANE
+    public void startAD() {
+
+        initAD();
+    }
+
+    private void initAD() {
+        handler = new Handler();
+        // Sample AdMob app ID: ca-app-pub-3940256099942544~3347511713
+        MobileAds.initialize(getActivity(), APP_ID);
+        mRewardedVideoAd = MobileAds.getRewardedVideoAdInstance(getActivity());
+        mRewardedVideoAd.setRewardedVideoAdListener(this);
+        mRewardedVideoAd.loadAd(AD_UNIT_ID,
+                new AdRequest.Builder().build());
+
+        if (AD_UNIT_INTERS != null) {
+            mInterstitialAd = new InterstitialAd(getActivity());
+            mInterstitialAd.setAdUnitId(AD_UNIT_INTERS);
+            mInterstitialAd.loadAd(new AdRequest.Builder().build());
+            mInterstitialAd.setAdListener(new AdListener() {
+                @Override
+                public void onAdLoaded() {
+                    Toast.makeText(getActivity(), "onAdLoaded", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAdFailedToLoad(int errorCode) {
+                    Toast.makeText(getActivity(), "onAdFailedToLoad", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAdOpened() {
+                    Toast.makeText(getActivity(), "onAdOpened", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAdLeftApplication() {
+                    Toast.makeText(getActivity(), "onAdLeftApplication", Toast.LENGTH_SHORT).show();
+                }
+
+                @Override
+                public void onAdClosed() {
+                    PublisherExtContext.this.dispatchStatusEventAsync("onAdClosed", "100");
+                    mInterstitialAd.loadAd(new AdRequest.Builder().build());
+                }
+            });
+        }
+
+        loadRewardedVideoAd();
+    }
+
+    @ANE
+    public int showRewardAD() {
+        if (mRewardedVideoAd.isLoaded()) {
+            mRewardedVideoAd.show();
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    @ANE
+    public int showInterstitialAd() {
+        if (mInterstitialAd.isLoaded()) {
+            mInterstitialAd.show();
+            return 0;
+        } else {
+            return -1;
+        }
+    }
+
+    private void loadRewardedVideoAd() {
+        if (triedTimes >= 3) {
+            return;
+        }
+        triedTimes++;
+
+        String android_id = Settings.Secure.getString(getActivity().getContentResolver(), Settings.Secure.ANDROID_ID);
+        String deviceId = md5(android_id).toUpperCase();
+        mRewardedVideoAd.loadAd(AD_UNIT_ID,
+                new AdRequest.Builder()
+//                        .addTestDevice(deviceId)
+                        .build()); //32EB268C8F0D134EAA849BE397D770B9
+    }
+
+    @Override
+    public void onRewardedVideoAdLoaded() {
+        Toast.makeText(getActivity(), "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show();
+        this.dispatchStatusEventAsync("videoLoaded", "loaded");
+    }
+
+    @Override
+    public void onRewardedVideoAdOpened() {
+        Toast.makeText(getActivity(), "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show();
+        this.dispatchStatusEventAsync("videoOpened", "open");
+    }
+
+    @Override
+    public void onRewardedVideoStarted() {
+        Toast.makeText(getActivity(), "onRewardedVideoStarted", Toast.LENGTH_SHORT).show();
+        this.dispatchStatusEventAsync("videoStart", "start");
+    }
+
+    @Override
+    public void onRewardedVideoAdClosed() {
+        Toast.makeText(getActivity(), "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show();
+        this.dispatchStatusEventAsync("videoClose", "closed");
+        loadRewardedVideoAd();
+    }
+
+    @Override
+    public void onRewarded(RewardItem rewardItem) {
+        this.dispatchStatusEventAsync("reward", "100");
+    }
+
+    @Override
+    public void onRewardedVideoAdLeftApplication() {
+        Toast.makeText(getActivity(), "onRewardedVideoAdLeftApplication",
+                Toast.LENGTH_SHORT).show();
+        this.dispatchStatusEventAsync("videoLeftApp", "left");
+    }
+
+    @Override
+    public void onRewardedVideoAdFailedToLoad(int i) {
+        Toast.makeText(getActivity(), "onRewardedVideoAdFailedToLoad:" + i, Toast.LENGTH_SHORT).show();
+        this.dispatchStatusEventAsync("videoFailedToLoad", "failedToLoad");
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                loadRewardedVideoAd();
+            }
+        }, 5000);
+    }
+
+    public static final String md5(final String s) {
+        try {
+            // Create MD5 Hash
+            MessageDigest digest = java.security.MessageDigest
+                    .getInstance("MD5");
+            digest.update(s.getBytes());
+            byte messageDigest[] = digest.digest();
+
+            // Create Hex String
+            StringBuffer hexString = new StringBuffer();
+            for (int i = 0; i < messageDigest.length; i++) {
+                String h = Integer.toHexString(0xFF & messageDigest[i]);
+                while (h.length() < 2)
+                    h = "0" + h;
+                hexString.append(h);
+            }
+            return hexString.toString();
+
+        } catch (NoSuchAlgorithmException e) {
+        }
+        return "";
     }
 }

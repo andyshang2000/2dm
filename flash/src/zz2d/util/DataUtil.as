@@ -48,6 +48,11 @@ package zz2d.util
 		{
 			return (uint(read(_arg_1, _arg_2)));
 		}
+		
+		public static function readNumber(_arg_1:String, _arg_2:uint = 0):Number
+		{
+			return (Number(read(_arg_1, _arg_2)));
+		}
 
 		public static function readObj(_arg_1:String, _arg_2:Object = null):Object
 		{
@@ -68,8 +73,13 @@ package zz2d.util
 		{
 			_data[_arg_1] = _arg_2;
 		}
-
+		
 		public static function writeUint(_arg_1:String, _arg_2:uint = 0):void
+		{
+			_data[_arg_1] = _arg_2;
+		}
+		
+		public static function writeNumber(_arg_1:String, _arg_2:Number = 0):void
 		{
 			_data[_arg_1] = _arg_2;
 		}
