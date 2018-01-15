@@ -17,6 +17,7 @@ import com.google.android.gms.ads.MobileAds;
 import com.google.android.gms.ads.reward.RewardItem;
 import com.google.android.gms.ads.reward.RewardedVideoAd;
 import com.google.android.gms.ads.reward.RewardedVideoAdListener;
+import com.rockplaygames.a.MainActivity;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -29,6 +30,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.zip.ZipInputStream;
 
 public class PublisherExtContext extends ExtContextBase implements RewardedVideoAdListener {
@@ -37,13 +39,13 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
     private RewardedVideoAd mRewardedVideoAd;
     private InterstitialAd mInterstitialAd;
 
-//    private static final String AD_UNIT_ID = "ca-app-pub-2206762674984537/1218019039";
-//    private static final String APP_ID = "ca-app-pub-2206762674984537~3927942854";
-//    private static final String AD_UNIT_INTERS = "ca-app-pub-2206762674984537/1900631033";
+    private static final String APP_ID = "ca-app-pub-2206762674984537~3927942854";
+    private static final String AD_UNIT_ID = "ca-app-pub-2206762674984537/1218019039";
+    private static final String AD_UNIT_INTERS = "ca-app-pub-2206762674984537/1900631033";
 
-    private static final String APP_ID = "ca-app-pub-3940256099942544~3347511713";
-    private static final String AD_UNIT_ID = "cca-app-pub-3940256099942544/5224354917";
-    private static final String AD_UNIT_INTERS = "ca-app-pub-3940256099942544/1033173712";
+//    private static final String APP_ID = "ca-app-pub-3940256099942544~3347511713";
+//    private static final String AD_UNIT_ID = "cca-app-pub-3940256099942544/5224354917";
+//    private static final String AD_UNIT_INTERS = "ca-app-pub-3940256099942544/1033173712";
 
 
     private Handler handler;
@@ -80,6 +82,7 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
         if (saveCount > 9)
             saveCount = 0;
 
+        dispatchStatusEventAsync("savedImg", "");
     }
 
     /**
@@ -130,6 +133,11 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
     }
 
     @ANE
+    public String getLang() {
+        return Locale.getDefault().getLanguage();
+    }
+
+    @ANE
     public void askForMessage() {
         sendMessage();
     }
@@ -145,6 +153,7 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
         intent.putExtra("author", "Abel");
         getActivity().sendBroadcast(intent);
         initAD();
+        ((MainActivity) getActivity()).setExtension(this);
         return 1;
     }
 
@@ -175,22 +184,22 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
             mInterstitialAd.setAdListener(new AdListener() {
                 @Override
                 public void onAdLoaded() {
-                    Toast.makeText(getActivity(), "onAdLoaded", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), "onAdLoaded", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onAdFailedToLoad(int errorCode) {
-                    Toast.makeText(getActivity(), "onAdFailedToLoad", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), "onAdFailedToLoad", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onAdOpened() {
-                    Toast.makeText(getActivity(), "onAdOpened", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), "onAdOpened", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
                 public void onAdLeftApplication() {
-                    Toast.makeText(getActivity(), "onAdLeftApplication", Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(getActivity(), "onAdLeftApplication", Toast.LENGTH_SHORT).show();
                 }
 
                 @Override
@@ -240,25 +249,25 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
 
     @Override
     public void onRewardedVideoAdLoaded() {
-        Toast.makeText(getActivity(), "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "onRewardedVideoAdLoaded", Toast.LENGTH_SHORT).show();
         this.dispatchStatusEventAsync("videoLoaded", "loaded");
     }
 
     @Override
     public void onRewardedVideoAdOpened() {
-        Toast.makeText(getActivity(), "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "onRewardedVideoAdOpened", Toast.LENGTH_SHORT).show();
         this.dispatchStatusEventAsync("videoOpened", "open");
     }
 
     @Override
     public void onRewardedVideoStarted() {
-        Toast.makeText(getActivity(), "onRewardedVideoStarted", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "onRewardedVideoStarted", Toast.LENGTH_SHORT).show();
         this.dispatchStatusEventAsync("videoStart", "start");
     }
 
     @Override
     public void onRewardedVideoAdClosed() {
-        Toast.makeText(getActivity(), "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "onRewardedVideoAdClosed", Toast.LENGTH_SHORT).show();
         this.dispatchStatusEventAsync("videoClose", "closed");
         loadRewardedVideoAd();
     }
@@ -270,14 +279,14 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
 
     @Override
     public void onRewardedVideoAdLeftApplication() {
-        Toast.makeText(getActivity(), "onRewardedVideoAdLeftApplication",
-                Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "onRewardedVideoAdLeftApplication",
+//                Toast.LENGTH_SHORT).show();
         this.dispatchStatusEventAsync("videoLeftApp", "left");
     }
 
     @Override
     public void onRewardedVideoAdFailedToLoad(int i) {
-        Toast.makeText(getActivity(), "onRewardedVideoAdFailedToLoad:" + i, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(getActivity(), "onRewardedVideoAdFailedToLoad:" + i, Toast.LENGTH_SHORT).show();
         this.dispatchStatusEventAsync("videoFailedToLoad", "failedToLoad");
         handler.postDelayed(new Runnable() {
             @Override
@@ -308,5 +317,26 @@ public class PublisherExtContext extends ExtContextBase implements RewardedVideo
         } catch (NoSuchAlgorithmException e) {
         }
         return "";
+    }
+
+    @Override
+    public void onResume() {
+        if (mRewardedVideoAd != null)
+            mRewardedVideoAd.resume(getActivity());
+        super.onResume();
+    }
+
+    @Override
+    public void onPause() {
+        if (mRewardedVideoAd != null)
+            mRewardedVideoAd.pause(getActivity());
+        super.onPause();
+    }
+
+    @Override
+    public void onDestroy() {
+        if (mRewardedVideoAd != null)
+            mRewardedVideoAd.destroy(getActivity());
+        super.onDestroy();
     }
 }

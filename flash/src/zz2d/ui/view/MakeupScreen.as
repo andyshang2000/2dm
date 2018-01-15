@@ -1,7 +1,8 @@
 package zz2d.ui.view
 {
+	import flash.utils.setInterval;
 	import flash.utils.setTimeout;
-
+	
 	import fairygui.Controller;
 	import fairygui.GComponent;
 	import fairygui.GGroup;
@@ -10,14 +11,13 @@ package zz2d.ui.view
 	import fairygui.GLoader;
 	import fairygui.GMovieClip;
 	import fairygui.GObject;
-	import fairygui.GRoot;
+	import fairygui.Transition;
 	import fairygui.UIObjectFactory;
 	import fairygui.UIPackage;
-	import fairygui.event.GTouchEvent;
 	import fairygui.event.ItemEvent;
-
+	
 	import starling.textures.RenderTexture;
-
+	
 	import zz2d.game.Game;
 	import zz2d.game.Item;
 	import zz2d.modules.makeup.Cotton;
@@ -31,6 +31,7 @@ package zz2d.ui.view
 	import zz2d.ui.window.CryPrompt;
 	import zz2d.ui.window.FreeCoin;
 	import zz2d.ui.window.NotEnoughCoinPrompt;
+	import zz2d.ui.window.SaveImgPrompt;
 	import zz2d.ui.window.Sign;
 
 	public class MakeupScreen extends GScreen implements IScreen
@@ -110,6 +111,7 @@ package zz2d.ui.view
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/FreeCoin", FreeCoin);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/CryPrompt", CryPrompt);
 		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/SoundSettings", SoundSettings);
+		UIObjectFactory.setPackageItemExtension("ui://zz2d.dressup.gui/SaveImgPrompt", SaveImgPrompt);
 
 		override public function dispose():void
 		{
@@ -137,6 +139,7 @@ package zz2d.ui.view
 
 			setTimeout(hideLoading, 500);
 			setTimeout(popupSign, 1000);
+			setupEffects();
 
 			toolBar.addEventListener("change", function():void
 			{
@@ -200,6 +203,21 @@ package zz2d.ui.view
 				}
 			});
 			changeTool();
+		}
+
+		private function setupEffects():void
+		{
+			var t3:Transition = getTransition("t3")
+			if (t3 != null)
+			{
+				duplicatePlay({t: t3, delay: 8});
+			}
+		}
+
+		private function duplicatePlay(params:Object):void
+		{
+			var t:Transition = params.t;
+			t.play(duplicatePlay, params, 1, params.delay)
 		}
 
 		public function drawFace():void

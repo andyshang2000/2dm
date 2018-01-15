@@ -446,7 +446,8 @@ package starling.core
                 _stage.render(_painter);
                 _painter.finishFrame();
                 _painter.frameID = ++_frameID;
-
+				
+				dispatchEventWith("drawScreen");
                 if (!shareContext)
                     _painter.present();
             }

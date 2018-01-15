@@ -5,10 +5,11 @@ package zz2d.ui
 	import flash.display3D.Context3DRenderMode;
 	import flash.events.Event;
 	import flash.events.EventDispatcher;
+	import flash.geom.Matrix;
 	import flash.geom.Rectangle;
-	
+
 	import starling.core.Starling;
-	
+
 	import zzsdk.display.Screen;
 
 	[Event(name = "layerCreated", type = "flash.events.Event")]
@@ -30,7 +31,7 @@ package zz2d.ui
 			Screen.designW = 480;
 			Screen.designH = 800;
 			Screen.initialize(stage);
-			
+
 			//
 			stage.color = 0;
 		}
@@ -44,21 +45,26 @@ package zz2d.ui
 			drawScheduled = true;
 		}
 
-//		protected function firstRenderEvent(event:Event):void
-//		{
-//			removeEventListener(Scene3D.RENDER_EVENT, firstRenderEvent);
-//			addEventListener(Scene3D.RENDER_EVENT, renderEvent);
-//			while (bootQueue.length > 0)
-//			{
-//				var obj:Object = bootQueue.shift();
-//				var f:Function = obj.callee;
-//				f.apply(null, obj);
-//			}
-//
-//			bufferBitmapData = new BitmapData(context.backBufferWidth, //
-//				context.backBufferHeight, //
-//				false, 0x0);
-//		}
+		protected function renderEvent(event:*):void
+		{
+			var snap:Boolean = false;
+			if (drawScheduled)
+			{
+				Starling.context.drawToBitmapData(bufferBitmapData);
+				drawScheduled = false;
+
+				outputBitmapData.draw(bufferBitmapData, //
+					new Matrix( //
+					targetRect.width / bufferBitmapData.width, 0, //
+					0, targetRect.height / bufferBitmapData.height, //
+					-targetRect.x, -targetRect.y));
+				snap = true;
+			}
+			if (snap)
+			{
+				dispatchEvent(new Event("snap"));
+			}
+		}
 
 		public function addLayer(name:String, type:String):void
 		{
@@ -75,11 +81,16 @@ package zz2d.ui
 				layer.start();
 				layer.simulateMultitouch = true;
 				renderOrder.push(layer);
+				layer.addEventListener("drawScreen", renderEvent);
 				layer.addEventListener("rootCreated", function():void
 				{
 					layer.addEventListener("rootCreated", arguments.callee);
 					layer.root.name = name;
 					updateLayerRequest();
+
+					bufferBitmapData = new BitmapData(Starling.context.backBufferWidth, //
+						Starling.context.backBufferHeight, //
+						false, 0x0);
 				});
 			}
 			else

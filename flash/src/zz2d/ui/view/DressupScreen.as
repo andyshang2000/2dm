@@ -72,7 +72,7 @@ package zz2d.ui.view
 				{
 					cameraButton.getController("c1").selectedPage = "switchCamera";
 				}
-				VideoFace(model.getChild("videoFace")).attachCamera(camera);
+				VideoFace(model.getChild("videoFace")).attachCamera(camera, cameraIndex);
 				VideoFace(model.getChild("videoFace")).visible = true;
 			}
 			else if (cameraButton.getController("c1").selectedPage == "toCartoon")
@@ -90,6 +90,32 @@ package zz2d.ui.view
 			getController("gameState").selectedPage = "show";
 			model.getController("gameState").selectedPage = "show";
 			VideoFace(model.getChild("videoFace")).snap();
+			VideoFace(model.getChild("videoFace")).attachCamera(null);
+		}
+
+		[Handler(clickGTouch)]
+		public function prevPageClick():void
+		{
+			getController("gameState").selectedPage = "game";
+			model.getController("gameState").selectedPage = "game";
+			if (cameraButton.getController("c1").selectedPage == "toCartoon" || //
+				cameraButton.getController("c1").selectedPage == "switchCamera")
+			{
+				var nameList:Array = Camera.names;
+				var camera:Camera = Camera.getCamera(nameList[cameraIndex - 1 % nameList.length]);
+				VideoFace(model.getChild("videoFace")).attachCamera(camera, cameraIndex);
+			}
+		}
+
+		[Handler(clickGTouch)]
+		public function saveImgButtonClick():void
+		{
+			getController("gameState").selectedPage = "screenshot";
+			screenshot()
+			setTimeout(function():void
+			{
+				getController("gameState").selectedPage = "show";
+			}, 1);
 		}
 
 		[Handler(clickGTouch)]

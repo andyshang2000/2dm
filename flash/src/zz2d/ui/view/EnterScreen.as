@@ -1,6 +1,5 @@
 package zz2d.ui.view
 {
-	import flash.events.StatusEvent;
 	import flash.media.Sound;
 
 	import fairygui.GRoot;
@@ -39,17 +38,11 @@ package zz2d.ui.view
 
 		override protected function onCreate():void
 		{
+			Game.lang = getLanguage();
+			UIPackage.setStringsSource(XML(FileUtil.open("locale-" + Game.lang + ".txt")));
 			setGView("zz2d.dressup.gui", "Root");
 			fit(getChild("bg"));
-			try
-			{
-				PaymentANE.call("ready");
-				
-				Game.listen(PaymentANE.extContext)
-			}
-			catch (err:Error)
-			{
-			}
+
 			var url:String = UIPackage.getItemURL("zz2d.dressup.gui", "bgm");
 			var pi:PackageItem = UIPackage.getItemByURL(url);
 			var sound:Sound = pi.owner.getSound(pi);
@@ -58,7 +51,32 @@ package zz2d.ui.view
 				GRoot.inst.playBGM(sound, 1);
 			}
 
+			try
+			{
+				PaymentANE.call("ready");
+				Game.listen(PaymentANE.extContext)
+			}
+			catch (err:Error)
+			{
+			}
 			Game.load();
+		}
+
+		private static function getLanguage():String
+		{
+			var res:String = "zh";
+			try
+			{
+				res = PaymentANE.call("getLang");
+				if(res != "zh")
+				{
+					res = "en"
+				}
+			}
+			catch (err:Error)
+			{
+			}
+			return res;
 		}
 	}
 }

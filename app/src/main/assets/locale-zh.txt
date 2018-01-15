@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- zz2d.dressup.gui - ConfirmPrompt -->
+  <string name="vwiq9q6agdnoac-n2_gdno" mz="textField">确定花费 ${coin}金币购买道具么?</string>
+  <!-- zz2d.dressup.gui - CryPrompt -->
+  <string name="vwiq9q6amu5iaz-n11_mu5i" mz="n11">暂时没有可以观看的视频</string>
+  <!-- zz2d.dressup.gui - LoadingScene -->
+  <string name="vwiq9q6aie6l7u-n1_ie6l" mz="n1">加载中</string>
+  <!-- zz2d.dressup.gui - NotEnoughCoinPrompt -->
+  <string name="vwiq9q6agdnoag-n1_gdno" mz="textField">你的金币不够了!</string>
+  <!-- zz2d.dressup.gui - PromptButton -->
+  <string name="vwiq9q6agdnoad-n5_mu5i" mz="noPromptField">不要再提示</string>
+  <!-- zz2d.dressup.gui - QuitPrompt -->
+  <string name="vwiq9q6ae5hyer-n2_gdno" mz="textField">你按下了后退键, 
+确定要退出游戏吗?</string>
+  <!-- zz2d.dressup.gui - RestartButton -->
+  <string name="vwiq9q6ae5hyei-n28_e5hy" mz="n28">在玩一次</string>
+  <!-- zz2d.dressup.gui - SaveImgButton -->
+  <string name="vwiq9q6ae5hyeh-n28_e5hy" mz="n28">保存到相册</string>
+  <!-- zz2d.dressup.gui - SaveImgPrompt -->
+  <string name="vwiq9q6ae5hyem-n11_mu5i" mz="n11">图片已经保存，请查看相册</string>
+  <!-- zz2d.dressup.gui - Sign -->
+  <string name="vwiq9q6aqz878j-n16_qz87" mz="n16">第一天</string>
+  <string name="vwiq9q6aqz878j-n17_qz87" mz="n17">第二天</string>
+  <string name="vwiq9q6aqz878j-n18_qz87" mz="n18">第三天</string>
+  <string name="vwiq9q6aqz878j-n19_qz87" mz="n19">第四天</string>
+  <string name="vwiq9q6aqz878j-n20_qz87" mz="n20">第五天</string>
+  <string name="vwiq9q6aqz878j-n21_qz87" mz="n21">第六天</string>
+  <string name="vwiq9q6aqz878j-n22_qz87" mz="n22">第七天</string>
+  <!-- zz2d.dressup.gui - WatchVideoButton -->
+  <string name="vwiq9q6agdnoak-n6_gdno" mz="n6">免费金币</string>
+  <!-- zz2d.dressup.gui - YesButton2 -->
+  <string name="vwiq9q6agdnoaj-n5_gdno" mz="n5">确定</string>
+</resources>

@@ -33,9 +33,9 @@ package zz2d.ui.view
 			video.scale = width / getChild("pixelMask").asImage.texture.width;
 		}
 
-		public function attachCamera(camera:Camera):void
+		public function attachCamera(camera:Camera, direct:int = 1):void
 		{
-			video.attachCamera(camera, 2);
+			video.attachCamera(camera, direct);
 		}
 		
 		public function snap():void

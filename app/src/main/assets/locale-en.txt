@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- zz2d.dressup.gui - ConfirmPrompt -->
+  <string name="vwiq9q6agdnoac-n2_gdno" mz="textField">Buy this item with ${coin} coin?</string>
+  <!-- zz2d.dressup.gui - CryPrompt -->
+  <string name="vwiq9q6amu5iaz-n11_mu5i" mz="n11">No Video Available Now, Try Later</string>
+  <!-- zz2d.dressup.gui - LoadingScene -->
+  <string name="vwiq9q6aie6l7u-n1_ie6l" mz="n1">Loading</string>
+  <!-- zz2d.dressup.gui - NotEnoughCoinPrompt -->
+  <string name="vwiq9q6agdnoag-n1_gdno" mz="textField">Your coin is not enough!</string>
+  <!-- zz2d.dressup.gui - PromptButton -->
+  <string name="vwiq9q6agdnoad-n5_mu5i" mz="noPromptField">Don't prompt again</string>
+  <!-- zz2d.dressup.gui - QuitPrompt -->
+  <string name="vwiq9q6ae5hyer-n2_gdno" mz="textField">You pressed back button, 
+sure you want to quit?</string>
+  <!-- zz2d.dressup.gui - RestartButton -->
+  <string name="vwiq9q6ae5hyei-n28_e5hy" mz="n28">RESTART</string>
+  <!-- zz2d.dressup.gui - SaveImgButton -->
+  <string name="vwiq9q6ae5hyeh-n28_e5hy" mz="n28">SAVE IMAGE</string>
+  <!-- zz2d.dressup.gui - SaveImgPrompt -->
+  <string name="vwiq9q6ae5hyem-n11_mu5i" mz="n11">Image saved! check you ablum</string>
+  <!-- zz2d.dressup.gui - Sign -->
+  <string name="vwiq9q6aqz878j-n16_qz87" mz="n16">Day 1</string>
+  <string name="vwiq9q6aqz878j-n17_qz87" mz="n17">Day 2</string>
+  <string name="vwiq9q6aqz878j-n18_qz87" mz="n18">Day 3</string>
+  <string name="vwiq9q6aqz878j-n19_qz87" mz="n19">Day 4</string>
+  <string name="vwiq9q6aqz878j-n20_qz87" mz="n20">Day 5</string>
+  <string name="vwiq9q6aqz878j-n21_qz87" mz="n21">Day 6</string>
+  <string name="vwiq9q6aqz878j-n22_qz87" mz="n22">Day 7</string>
+  <!-- zz2d.dressup.gui - WatchVideoButton -->
+  <string name="vwiq9q6agdnoak-n6_gdno" mz="n6">GET FREE</string>
+  <!-- zz2d.dressup.gui - YesButton2 -->
+  <string name="vwiq9q6agdnoaj-n5_gdno" mz="n5">OK</string>
+</resources>

@@ -1,12 +1,14 @@
 package zz2d.ui.view
 {
 	import flash.display.BitmapData;
-	import flash.display3D.textures.VideoTexture;
 	import flash.geom.Matrix;
 	import flash.media.Camera;
-
+	
+	import fairygui.GRoot;
+	
 	import starling.core.Starling;
 	import starling.display.Quad;
+	import starling.display.Sprite;
 	import starling.extensions.pixelmask.PixelMaskDisplayObject;
 	import starling.textures.ConcreteVideoTexture;
 	import starling.textures.RenderTexture;
@@ -28,10 +30,16 @@ package zz2d.ui.view
 
 		private var rt:RenderTexture;
 
+		private var imageContainer:Sprite;
+		private var maskTexture:Texture;
+		private var direct:int;
+		private var snapImage:Quad;
+
 		public function CameraVideo(width:Number, height:Number)
 		{
 			w = width;
-			h = height;
+			h = w * GRoot.inst.actualHeight / GRoot.inst.actualWidth;
+			imageContainer = new Sprite;
 		}
 
 		public static function createWithMask(texture:Texture, source:* = null):CameraVideo
@@ -59,14 +67,16 @@ package zz2d.ui.view
 		{
 			var quad:Quad = new Quad(texture.width, texture.height);
 			quad.texture = texture;
+			maskTexture = texture
 			super.pixelMask = quad;
 		}
 
 		public function attachCamera(camera:Camera, direct:int = 1):void
 		{
+			this.direct = direct;
 			if (camera == null)
 			{
-				if(texture)
+				if (texture)
 				{
 					texture.dispose();
 					texture = null;
@@ -81,7 +91,7 @@ package zz2d.ui.view
 			}
 			disposed = false;
 			this.camera = camera;
-			camera.setMode(h, w, 24);
+			camera.setMode(h / 2, w / 2, 24);
 
 			if (!texture)
 			{
@@ -93,14 +103,30 @@ package zz2d.ui.view
 					return;
 				if (!image)
 				{
+					imageContainer = new Sprite;
 					image = new Quad(texture.width, texture.height);
 					image.texture = texture;
 //					image.scaleX = 0.3333;
 //					image.scaleY = 0.3333;
-					image.rotation = -Math.PI / 2;
-					image.y = texture.width; // / 3;
+
+					addChild(imageContainer);
 				}
-				addChild(image);
+				image.pivotX = image.texture.width / 2;
+				image.pivotY = image.texture.height / 2;
+				image.rotation = -Math.PI / 2;
+				if (direct == 1)
+					image.scaleX = -1;
+				else if (direct == 2)
+					image.scaleX = 1;
+				imageContainer.addChild(image);
+				imageContainer.x = maskTexture.width / 2;
+				imageContainer.y = maskTexture.height / 2;
+				imageContainer.scaleX = -1;
+				if(snapImage)
+				{
+					snapImage.visible = false;
+				}
+				image.visible = true;
 			});
 			texture.onRestore = function():void
 			{
@@ -111,19 +137,27 @@ package zz2d.ui.view
 
 		public function snap():void
 		{
-			if (image)
+			if (!rt)
 			{
-				if (!rt)
-				{
-					rt = new RenderTexture(image.texture.width, image.texture.height);
-				}
-				image.rotation = 0;
-				image.y = 0
-				rt.draw(image);
-				image.rotation = -Math.PI / 2;
-				image.y = rt.width; // / 3;
-				image.texture = rt;
+				rt = new RenderTexture(image.texture.width, image.texture.height);
+				snapImage = new Quad(image.texture.width, image.texture.height);
+				snapImage.texture = rt;
+				snapImage.pivotX = image.texture.width / 2;
+				snapImage.pivotY = image.texture.height / 2;
+				snapImage.rotation = -Math.PI / 2;
+				imageContainer.addChild(snapImage);
 			}
+			image.rotation = 0;
+			image.pivotX = 0;
+			image.pivotY = 0;
+			image.scaleX = 1;
+			rt.draw(image);
+			snapImage.visible = true;
+			image.visible = false;
+			if (direct == 1)
+				snapImage.scaleX = -1;
+			else if (direct == 2)
+				snapImage.scaleX = 1;
 		}
 
 		override public function dispose():void

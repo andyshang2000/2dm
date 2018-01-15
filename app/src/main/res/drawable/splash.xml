@@ -3,10 +3,12 @@
     <!-- 背景颜色 -->
     <item android:drawable="@color/white" />
 
+    <item android:drawable="@drawable/bg04" android:gravity="center" />
+    <!--
     <item>
-        <!-- 图片 -->
         <bitmap
             android:gravity="center"
             android:src="@drawable/bg04" />
     </item>
+    -->
 </layer-list>

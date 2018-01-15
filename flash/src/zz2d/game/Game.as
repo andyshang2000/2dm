@@ -2,9 +2,10 @@ package zz2d.game
 {
 	import flash.events.StatusEvent;
 	import flash.external.ExtensionContext;
-
+	
 	import fairygui.GRoot;
-
+	
+	import zz2d.ui.window.SaveImgPrompt;
 	import zz2d.util.DataUtil;
 
 	public class Game
@@ -18,20 +19,22 @@ package zz2d.game
 
 		public static var sfxMute:Boolean = false;
 		public static var musicMute:Boolean = false;
+		
+		public static var lang:String;
 
 		public static function save():void
 		{
 			money.save();
 			inventory.save();
 			signRecord.save();
-			DataUtil.writeBool("buyc", buyConfirm);
+			DataUtil.writeString("buyc", buyConfirm ? "buyc" : "without");
 			DataUtil.writeBool("sfxMute", sfxMute);
 			DataUtil.writeBool("muiscMute", musicMute);
 		}
 
 		public static function load():void
 		{
-			DataUtil.id = "zz2d18011115";
+			DataUtil.id = "zz2d201801152";
 			DataUtil.load(DataUtil.id);
 			if (!inventory)
 				inventory = new Inventory;
@@ -39,7 +42,8 @@ package zz2d.game
 			inventory.load();
 			signRecord.load();
 
-			buyConfirm = DataUtil.readBool("buyc");
+			if (DataUtil.readString("buyc") == "without")
+				buyConfirm = false;
 			sfxMute = DataUtil.readBool("sfxMute");
 			musicMute = DataUtil.readBool("musicMute");
 
@@ -58,6 +62,12 @@ package zz2d.game
 		{
 			switch (event.code)
 			{
+				case "onPause":
+				case "onDestroy":
+					GRoot.inst.bgmVolumeScale = 0;
+					GRoot.inst.volumeScale = 0;
+					break;
+				case "onResume":
 				case "onAdClosed":
 					if (!Game.sfxMute)
 						GRoot.inst.volumeScale = 1;
@@ -76,6 +86,9 @@ package zz2d.game
 				case "reward":
 					Game.money.m1 += 100;
 					Game.money.save();
+					break;
+				case "savedImg":
+					SaveImgPrompt.show();
 					break;
 			}
 		}

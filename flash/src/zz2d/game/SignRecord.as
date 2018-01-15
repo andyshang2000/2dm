@@ -6,9 +6,9 @@ package zz2d.game
 
 	public class SignRecord extends EventDispatcher
 	{
-		public var progress:int;
+		public var progress:int = 0;
 		public var signed:Boolean = false;
-		private var bonus:Array = [100, 100, 200, 300, 500, 700, 1000];
+		private var bonus:Array = [1000, 1000, 2000, 2000, 3000, 5000, 10000];
 
 		public function sign():Boolean
 		{
@@ -63,7 +63,7 @@ package zz2d.game
 			else
 			{
 				signed = false;
-				if (progress % 2 == 0)
+				if (progress % 2 == 1)
 					progress += 1;
 			}
 			dispatchEventWith("change");

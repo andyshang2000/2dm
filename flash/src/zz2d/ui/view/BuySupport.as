@@ -1,17 +1,14 @@
 package zz2d.ui.view
 {
 	import com.greensock.TweenLite;
-	
+
 	import fairygui.GComponent;
 	import fairygui.GMovieClip;
-	
-	import payment.ane.PaymentANE;
-	
+
 	import zz2d.game.Buy;
 	import zz2d.game.Game;
 	import zz2d.game.Item;
 	import zz2d.ui.window.ConfirmPrompt;
-	import zz2d.ui.window.CryPrompt;
 	import zz2d.ui.window.FreeCoin;
 	import zz2d.ui.window.NotEnoughCoinPrompt;
 
@@ -27,7 +24,9 @@ package zz2d.ui.view
 			{
 				if (Game.buyConfirm)
 				{
-					ConfirmPrompt.show().onOkClick(function():void
+					var prompt:ConfirmPrompt = ConfirmPrompt.show();
+					prompt.setItem(item);
+					prompt.onOkClick(function():void
 					{
 						confirmToBuy(item, rendererComp);
 					});

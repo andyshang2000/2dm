@@ -61,7 +61,7 @@ package zz2d.util
 
 		public static function readBool(_arg_1:String, _arg_2:Boolean = true):Boolean
 		{
-			return (Boolean(read(_arg_1, _arg_2)));
+			return (Boolean(read(_arg_1, _arg_2) == "true"));
 		}
 
 		public static function readString(_arg_1:String, _arg_2:String = ""):String
@@ -86,7 +86,7 @@ package zz2d.util
 
 		public static function writeBool(_arg_1:String, _arg_2:Boolean = true):void
 		{
-			_data[_arg_1] = _arg_2;
+			_data[_arg_1] = _arg_2?"true":"false";
 		}
 
 		public static function writeObj(_arg_1:String, _arg_2:*):void

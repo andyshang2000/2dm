@@ -1,9 +1,12 @@
 package zz2d.ui.view
 {
 	import com.greensock.TweenNano;
-
+	
+	import flash.display.BitmapData;
+	import flash.display.JPEGEncoderOptions;
 	import flash.geom.Rectangle;
-
+	import flash.utils.ByteArray;
+	
 	import fairygui.Controller;
 	import fairygui.GComponent;
 	import fairygui.GLoader;
@@ -13,16 +16,18 @@ package zz2d.ui.view
 	import fairygui.ScreenMatchMode;
 	import fairygui.Transition;
 	import fairygui.UIPackage;
-
+	
 	import payment.ane.PaymentANE;
-
+	
 	import starling.display.Sprite;
 	import starling.utils.RectangleUtil;
 	import starling.utils.ScaleMode;
-
+	
+	import zz2d.services.ScreenShot;
 	import zz2d.ui.util.GViewSupport;
-
+	
 	import zzsdk.display.Screen;
+	import zzsdk.utils.FileUtil;
 
 	public class GScreen implements IScreen
 	{
@@ -40,6 +45,27 @@ package zz2d.ui.view
 		public function GScreen()
 		{
 			loadAssets();
+		}
+
+		public static function screenshot():void
+		{
+		}
+
+		protected function screenshot():void
+		{
+			var bitmap:BitmapData = new BitmapData(GRoot.inst.actualWidth, GRoot.inst.actualHeight, false, 0);
+			ScreenShot.draw(bitmap, null, null, function():void
+			{
+				var bytes:ByteArray = bitmap.encode(bitmap.rect, new JPEGEncoderOptions(75));
+				try
+				{
+					PaymentANE.call("saveImage", bytes);
+				}
+				catch (err:Error)
+				{
+					FileUtil.save(bytes, "xxx.jpg");
+				}
+			});
 		}
 
 		public function getTransferParams():Array
@@ -88,9 +114,11 @@ package zz2d.ui.view
 			screenMgr.showLoading();
 			try
 			{
-				GRoot.inst.volumeScale = 0;
-				GRoot.inst.bgmVolumeScale = 0;
-				PaymentANE.call("showInterstitialAd");
+				if (PaymentANE.call("showInterstitialAd") == 1)
+				{
+					GRoot.inst.volumeScale = 0;
+					GRoot.inst.bgmVolumeScale = 0;
+				}
 			}
 			catch (err:Error)
 			{
